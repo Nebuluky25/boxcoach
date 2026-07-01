@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BOX Coach IA">
+<meta name="theme-color" content="#0d0d0d">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.svg">
+<title>BOX Coach IA</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+:root {
+  --black:   #0d0d0d; --dark:    #141414; --card:    #1a1a1a; --card2:   #222;
+  --accent:  #ff3c00; --gold:    #ffc200; --green:   #00e87a; --text:    #f0ede8;
+  --muted:   #666;    --border:  #2a2a2a;
+  --safe-top: env(safe-area-inset-top, 0px); --safe-bot: env(safe-area-inset-bottom, 0px);
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; background: var(--black); color: var(--text); font-family: 'Barlow', sans-serif; overflow-x: hidden; }
+.screen { display: none; flex-direction: column; height: 100dvh; }
+.screen.active { display: flex; }
+.safe-top { height: calc(var(--safe-top) + 8px); background: var(--dark); flex-shrink: 0; }
+#screen-home { background: var(--black); }
+.home-header { background: var(--dark); border-bottom: 2px solid var(--accent); padding: 16px 20px 14px; flex-shrink: 0; }
+.home-logo { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 32px; letter-spacing: 4px; text-transform: uppercase; line-height: 1; }
+.home-logo span { color: var(--accent); }
+.home-tagline { font-size: 11px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-top: 3px; }
+.home-body { flex: 1; overflow-y: auto; padding: 20px 16px; padding-bottom: calc(80px + var(--safe-bot)); }
+.season-banner { background: linear-gradient(135deg, #1a0a00 0%, #2a1000 100%); border: 1px solid rgba(255,60,0,0.3); border-left: 4px solid var(--accent); padding: 14px 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+.season-icon { font-size: 28px; flex-shrink: 0; }
+.season-text { flex: 1; }
+.season-label { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; }
+.season-value { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 700; color: var(--text); line-height: 1.1; margin-top: 2px; }
+.selector-row { display: flex; gap: 8px; margin-bottom: 20px; }
+.selector-group { flex: 1; }
+.selector-label { font-size: 10px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
+.selector-control { display: flex; background: var(--card); border: 1px solid var(--border); }
+.sel-btn { width: 36px; height: 40px; background: none; border: none; color: var(--muted); font-size: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.sel-value { flex: 1; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 16px; letter-spacing: 1px; color: var(--text); }
+.day-pills { display: flex; gap: 6px; margin-bottom: 20px; }
+.day-pill { flex: 1; padding: 10px 4px; background: var(--card); border: 1px solid var(--border); color: var(--muted); font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; text-align: center; }
+.day-pill.active { background: var(--accent); border-color: var(--accent); color: white; }
+.session-card { background: var(--card); border: 1px solid var(--border); margin-bottom: 12px; overflow: hidden; position: relative; }
+.session-card-inner { padding: 18px 16px; }
+.sc-type { font-size: 10px; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
+.sc-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 28px; line-height: 1; text-transform: uppercase; letter-spacing: 1px; }
+.sc-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.sc-chip { font-size: 10px; letter-spacing: 1px; padding: 3px 8px; border: 1px solid var(--border); color: var(--muted); text-transform: uppercase; font-weight: 600; }
+.sc-chip.gold { border-color: rgba(255,194,0,0.4); color: var(--gold); }
+.sc-chip.green { border-color: rgba(0,232,122,0.4); color: var(--green); }
+.sc-objective { font-size: 13px; color: #aaa; line-height: 1.5; margin-top: 12px; }
+.sc-blocks { display: flex; gap: 0; border-top: 1px solid var(--border); margin-top: 14px; }
+.sc-block { flex: 1; padding: 10px 0; text-align: center; border-right: 1px solid var(--border); }
+.sc-block:last-child { border-right: none; }
+.sc-block-num { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 900; color: var(--accent); }
+.sc-block-label { font-size: 9px; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; margin-top: 1px; }
+.sc-cta { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: rgba(255,60,0,0.08); border-top: 1px solid rgba(255,60,0,0.2); cursor: pointer; }
+.sc-cta-text { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); }
+.gen-btn { width: 100%; padding: 18px; background: var(--accent); border: none; color: white; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 17px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.empty-state { text-align: center; padding: 40px 20px; display: none; }
+.empty-state.show { display: block; }
+.empty-icon { font-size: 52px; margin-bottom: 14px; }
+.empty-title { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.empty-desc { font-size: 14px; color: var(--muted); line-height: 1.5; }
+.loading-overlay { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 50px 20px; gap: 20px; }
+.loading-overlay.show { display: flex; }
+.loading-bar-wrap { width: 100%; max-width: 280px; height: 3px; background: var(--border); overflow: hidden; }
+.loading-bar { height: 100%; background: var(--accent); animation: loadslide 1.4s ease-in-out infinite; }
+@keyframes loadslide { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
+.loading-text { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; }
+.loading-phase { font-size: 13px; color: var(--accent); font-style: italic; }
+#screen-session { background: var(--black); }
+.sess-header { background: var(--dark); border-bottom: 2px solid var(--accent); padding: 12px 16px; flex-shrink: 0; display: flex; align-items: center; gap: 14px; }
+.back-btn { background: none; border: none; color: var(--accent); font-size: 22px; padding: 4px; }
+.sess-header-info { flex: 1; min-width: 0; }
+.sess-header-day { font-size: 10px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+.sess-header-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 22px; letter-spacing: 1px; text-transform: uppercase; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sess-timer-pill { background: var(--accent); color: white; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: 1px; padding: 4px 12px; }
+.sess-body { flex: 1; overflow-y: auto; padding: 16px; padding-bottom: calc(24px + var(--safe-bot)); }
+.obj-block { background: var(--card); border-left: 4px solid var(--accent); padding: 14px 16px; margin-bottom: 14px; }
+.obj-label { font-size: 10px; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
+.obj-text { font-size: 14px; color: #bbb; line-height: 1.55; }
+.stim-pill { display: inline-block; margin-top: 8px; background: rgba(255,60,0,0.12); border: 1px solid rgba(255,60,0,0.3); color: var(--accent); font-size: 10px; font-weight: 700; letter-spacing: 2px; padding: 3px 10px; text-transform: uppercase; }
+.t-block { background: var(--card); border: 1px solid var(--border); margin-bottom: 10px; overflow: hidden; }
+.t-block-head { display: flex; align-items: center; gap: 12px; padding: 14px 14px; }
+.t-block-num { font-family: 'Barlow Condensed', sans-serif; font-size: 30px; font-weight: 900; color: var(--accent); line-height: 1; width: 28px; }
+.t-block-info { flex: 1; }
+.t-block-title { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; line-height: 1; }
+.t-block-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.t-block-dur { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; color: var(--gold); }
+.t-block-arrow { color: var(--muted); font-size: 14px; transition: transform 0.2s; }
+.t-block.open .t-block-arrow { transform: rotate(180deg); }
+.t-block-body { display: none; padding: 0 14px 16px; }
+.t-block.open .t-block-body { display: block; }
+.wod-box { background: var(--black); border: 1px solid rgba(255,60,0,0.25); padding: 14px; margin-bottom: 12px; }
+.wod-fmt { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 20px; color: var(--accent); letter-spacing: 2px; margin-bottom: 10px; }
+.wod-content { font-size: 13px; line-height: 1.9; color: #ddd; }
+.wod-score { font-size: 11px; color: var(--muted); font-style: italic; margin-top: 8px; }
+.t-list { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+.t-list li { font-size: 13px; line-height: 1.55; color: #bbb; padding-left: 16px; position: relative; }
+.t-list li::before { content: '—'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+.notes-section { margin-top: 16px; }
+.notes-title { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.note-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.note-card { background: var(--card); border: 1px solid var(--border); padding: 12px; }
+.note-card.heat { border-color: rgba(255,194,0,0.25); background: rgba(255,194,0,0.03); }
+.nc-title { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+.note-card.heat .nc-title { color: var(--gold); }
+.note-card:not(.heat) .nc-title { color: var(--accent); }
+.nc-list { list-style: disc; padding-left: 14px; }
+.nc-list li { font-size: 12px; color: #888; line-height: 1.55; margin-bottom: 4px; }
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--dark); border-top: 1px solid var(--border); display: flex; padding-bottom: var(--safe-bot); z-index: 200; }
+.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 0 8px; background: none; border: none; color: var(--muted); }
+.nav-item.active { color: var(--accent); }
+.nav-icon { font-size: 22px; line-height: 1; }
+.nav-label { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; font-weight: 600; }
+#screen-history { background: var(--black); }
+.hist-header { background: var(--dark); border-bottom: 2px solid var(--border); padding: 16px 20px; flex-shrink: 0; }
+.hist-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 28px; letter-spacing: 3px; text-transform: uppercase; }
+.hist-sub { font-size: 11px; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; margin-top: 2px; }
+.hist-body { flex: 1; overflow-y: auto; padding: 16px; padding-bottom: calc(80px + var(--safe-bot)); }
+.hist-week { margin-bottom: 20px; }
+.hist-week-title { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.hist-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.hist-day-badge { background: var(--card2); padding: 6px 10px; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; flex-shrink: 0; width: 50px; text-align: center; }
+.hist-info { flex: 1; }
+.hist-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; line-height: 1; }
+.hist-type { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.hist-arrow { color: var(--muted); font-size: 16px; }
+.hist-empty { text-align: center; padding: 60px 20px; }
+.hist-empty-icon { font-size: 48px; margin-bottom: 12px; }
+.hist-empty-text { font-size: 14px; color: var(--muted); }
+#screen-settings { background: var(--black); }
+.set-header { background: var(--dark); border-bottom: 2px solid var(--border); padding: 16px 20px; flex-shrink: 0; }
+.set-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 28px; letter-spacing: 3px; text-transform: uppercase; }
+.set-body { flex: 1; overflow-y: auto; padding: 20px 16px; padding-bottom: calc(80px + var(--safe-bot)); }
+.set-section { margin-bottom: 24px; }
+.set-section-title { font-size: 10px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; }
+.set-row { background: var(--card); border: 1px solid var(--border); padding: 14px 16px; display: flex; align-items: center; gap: 12px; margin-bottom: 2px; }
+.set-row-icon { font-size: 20px; flex-shrink: 0; }
+.set-row-info { flex: 1; }
+.set-row-label { font-size: 14px; font-weight: 600; }
+.set-row-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.set-row-value { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; font-weight: 700; color: var(--accent); letter-spacing: 1px; }
+.install-banner { background: rgba(0,232,122,0.08); border: 1px solid rgba(0,232,122,0.3); padding: 14px 16px; margin-bottom: 16px; display: none; }
+.install-banner.show { display: block; }
+.install-banner-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; color: var(--green); margin-bottom: 6px; }
+.install-steps { font-size: 13px; color: #aaa; line-height: 1.7; }
+.pill-push { background: rgba(255,60,0,0.12); color: var(--accent); border: 1px solid rgba(255,60,0,0.25); }
+.pill-pull { background: rgba(0,100,255,0.1); color: #60a5fa; border: 1px solid rgba(96,165,250,0.25); }
+.pill-legs { background: rgba(0,200,100,0.1); color: var(--green); border: 1px solid rgba(0,232,122,0.25); }
+.pill-full { background: rgba(255,194,0,0.1); color: var(--gold); border: 1px solid rgba(255,194,0,0.25); }
+</style>
+</head>
+<body>
+<div class="screen active" id="screen-home">
+  <div class="safe-top"></div>
+  <div class="home-header">
+    <div class="home-logo">BOX<span>.</span>COACH</div>
+    <div class="home-tagline">Entrenamiento funcional · IA · Modo verano</div>
+  </div>
+  <div class="home-body">
+    <div class="season-banner">
+      <div class="season-icon">☀️</div>
+      <div class="season-text">
+        <div class="season-label">Programa activo</div>
+        <div class="season-value">Modo Verano — Definición + Fuerza</div>
+      </div>
+    </div>
+    <div class="selector-row">
+      <div class="selector-group">
+        <div class="selector-label">Semana</div>
+        <div class="selector-control">
+          <button class="sel-btn" onclick="adjustWeek(-1)">−</button>
+          <div class="sel-value" id="week-display">S1</div>
+          <button class="sel-btn" onclick="adjustWeek(1)">+</button>
+        </div>
+      </div>
+      <div class="selector-group">
+        <div class="selector-label">Día</div>
+        <div class="selector-control">
+          <div class="sel-value" id="day-name-display" style="font-size:13px">Lunes</div>
+        </div>
+      </div>
+    </div>
+    <div class="day-pills">
+      <div class="day-pill active" onclick="selectDay(0)">LUN</div>
+      <div class="day-pill" onclick="selectDay(1)">MAR</div>
+      <div class="day-pill" onclick="selectDay(2)">MIÉ</div>
+      <div class="day-pill" onclick="selectDay(3)">JUE</div>
+    </div>
+    <button class="gen-btn" id="gen-btn" onclick="generateSession()">
+      <span>⚡</span><span id="gen-btn-text">GENERAR SESIÓN</span>
+    </button>
+    <div class="loading-overlay" id="loading">
+      <div class="loading-bar-wrap"><div class="loading-bar"></div></div>
+      <div class="loading-text">Creando sesión...</div>
+      <div class="loading-phase" id="loading-phase">Analizando patrón de movimiento</div>
+    </div>
+    <div class="empty-state show" id="empty-state">
+      <div class="empty-icon">🏋️</div>
+      <div class="empty-title">Sin sesión</div>
+      <div class="empty-desc">Pulsa GENERAR SESIÓN para que la IA cree el entrenamiento del día</div>
+    </div>
+    <div id="session-preview" style="display:none"></div>
+    <div class="install-banner" id="install-banner">
+      <div class="install-banner-title">📲 Instalar en iPhone</div>
+      <div class="install-steps">1. Pulsa Compartir<br>2. Elige "Añadir a pantalla de inicio"</div>
+    </div>
+  </div>
+</div>
+<div class="screen" id="screen-session">
+  <div class="safe-top"></div>
+  <div class="sess-header">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div class="sess-header-info">
+      <div class="sess-header-day" id="detail-day-label">Lunes · Semana 1</div>
+      <div class="sess-header-name" id="detail-session-name">—</div>
+    </div>
+    <div class="sess-timer-pill">50 MIN</div>
+  </div>
+  <div class="sess-body" id="sess-body-content"></div>
+</div>
+<div class="screen" id="screen-history">
+  <div class="safe-top"></div>
+  <div class="hist-header"><div class="hist-title">Historial</div></div>
+  <div class="hist-body" id="hist-body"></div>
+</div>
+<div class="screen" id="screen-settings">
+  <div class="safe-top"></div>
+  <div class="set-header"><div class="set-title">Config</div></div>
+  <div class="set-body">
+    <div class="set-section">
+      <div class="set-section-title">Tu box</div>
+      <div class="set-row"><div class="set-row-icon">👥</div><div class="set-row-info"><div class="set-row-label">Atletas por clase</div></div><div class="set-row-value">14</div></div>
+      <div class="set-row"><div class="set-row-icon">🕐</div><div class="set-row-info"><div class="set-row-label">Duración</div></div><div class="set-row-value">50 M</div></div>
+    </div>
+  </div>
+</div>
+<div class="bottom-nav">
+  <button class="nav-item active" id="nav-home" onclick="switchScreen('home')"><div class="nav-icon">🏠</div><div class="nav-label">Inicio</div></button>
+  <button class="nav-item" id="nav-history" onclick="switchScreen('history')"><div class="nav-icon">📋</div><div class="nav-label">Historial</div></button>
+  <button class="nav-item" id="nav-settings" onclick="switchScreen('settings')"><div class="nav-icon">⚙️</div><div class="nav-label">Config</div></button>
+</div>
+<script>
+const DAYS = ['Lunes', 'Martes', 'Miércoles', 'Jueves'];
+const DAY_PATTERNS = ['Full Body', 'Legs + Push', 'Pull + Core', 'Legs + Potencia'];
+let state = { week: 1, day: 0, sessions: {}, currentScreen: 'home' };
+function switchScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('nav-' + name)?.classList.add('active');
+  if (name === 'history') renderHistory();
+}
+function goBack() { switchScreen('home'); }
+function adjustWeek(delta) { state.week = Math.max(1, Math.min(12, state.week + delta)); document.getElementById('week-display').textContent = 'S' + state.week; updateHomeForCurrentSelection(); }
+function selectDay(index) { state.day = index; document.querySelectorAll('.day-pill').forEach((p, i) => p.classList.toggle('active', i === index)); document.getElementById('day-name-display').textContent = DAYS[index]; updateHomeForCurrentSelection(); }
+function sessionKey() { return `S${state.week}-${state.day}`; }
+function updateHomeForCurrentSelection() {
+  const session = state.sessions[sessionKey()];
+  if (session) {
+    document.getElementById('empty-state').classList.remove('show');
+    document.getElementById('session-preview').style.display = 'block';
+    renderPreview(session);
+  } else {
+    document.getElementById('empty-state').classList.add('show');
+    document.getElementById('session-preview').style.display = 'none';
+  }
+}
+async function generateSession() {
+  const btn = document.getElementById('gen-btn');
+  btn.disabled = true;
+  document.getElementById('empty-state').classList.remove('show');
+  document.getElementById('session-preview').style.display = 'none';
+  document.getElementById('loading').classList.add('show');
+  setTimeout(() => {
+    const simulacion = {
+      "nombre": "Fuego de Verano", "tipo": "Gymnastics + Metcon", "patron": DAY_PATTERNS[state.day],
+      "estimulo": "Capacidad glucolítica y resistencia", "objetivo": "Mantener alta intensidad reduciendo el impacto de cargas pesadas por el calor.",
+      "calentamiento": { "duracion": "9 min", "items": ["3 rondas: 200m carrera suave + 10 OHS con pica.", "5 Saltos al cajón pausados."] },
+      "strength": { "titulo": "Complejo de Fuerza DB", "subtitulo": "Densidad por intervalos", "duracion": "17 min", "formato": "EMOM 15 min", "descripcion": "Min 1: 8 DB Thrusters. Min 2: 10 Renegade Rows. Min 3: Descanso.", "notas": ["Controlar el RPE por el calor."] },
+      "wod": { "nombre": "Calor Infernal", "formato": "AMRAP", "duracion": "18 min", "descripcion": "AMRAP 18' de: 15 KB Swings (16/12kg), 12 Burpees sobre cajón, 60 Saltos a la comba.", "score": "Rondas + repeticiones.", "notes": ["Hidratación obligatoria."] },
+      "cooldown": { "duracion": "5 min", "items": ["Estiramiento pasivo."] },
+      "calor": ["Beber agua antes del WOD."], "escalados": ["KB Swings más livianos."]
+    };
+    simulacion._key = sessionKey(); simulacion._week = state.week; simulacion._day = state.day;
+    state.sessions[sessionKey()] = simulacion;
+    document.getElementById('loading').classList.remove('show');
+    btn.disabled = false;
+    updateHomeForCurrentSelection();
+  }, 1500);
+}
+function renderPreview(session) {
+  document.getElementById('session-preview').innerHTML = `
+    <div class="session-card">
+      <div class="session-card-inner">
+        <div class="sc-type">${DAYS[session._day]} · Semana ${session._week}</div>
+        <div class="sc-name">${session.nombre}</div>
+        <div class="sc-objective">${session.objetivo}</div>
+      </div>
+      <div class="sc-cta" onclick="openSession('${session._key}')"><span class="sc-cta-text">VER SESIÓN COMPLETA</span></div>
+    </div>`;
+}
+function openSession(key) {
+  const s = state.sessions[key];
+  document.getElementById('detail-day-label').textContent = `${DAYS[s._day]} · Semana ${s._week}`;
+  document.getElementById('detail-session-name').textContent = s.nombre;
+  const mkList = arr => arr.map(i => `<li>${i}</li>`).join('');
+  document.getElementById('sess-body-content').innerHTML = `
+    <div class="obj-block"><div class="obj-text">${s.objetivo}</div></div>
+    <div class="t-block"><div class="t-block-head"><div class="t-block-title">WOD: ${s.wod.nombre} (${s.wod.formato})</div></div><div class="t-block-body" style="display:block"><p>${s.wod.descripcion}</p></div></div>`;
+  switchScreen('session');
+}
+function renderHistory() {
+  const body = document.getElementById('hist-body');
+  const keys = Object.keys(state.sessions);
+  if(keys.length===0) { body.innerHTML='<div class="hist-empty">No hay sesiones</div>'; return; }
+  body.innerHTML = keys.map(k => `<div class="hist-item" onclick="openSession('${k}')">${state.sessions[k].nombre}</div>`).join('');
+}
+</script>
+</body>
+</html>
