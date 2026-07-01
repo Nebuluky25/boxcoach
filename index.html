@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BOX COACH">
+    <meta name="theme-color" content="#0d0d0d">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="apple-touch-icon" href="./icon-192.svg">
+    <title>BOX COACH — Elite AI Generator</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+
+        :root {
+            --black: #0d0d0d;
+            --dark: #141414;
+            --card: #1a1a1a;
+            --card2: #222;
+            --accent: #ff3c00;
+            --gold: #ffc200;
+            --green: #00e87a;
+            --text: #f0ede8;
+            --muted: #888;
+            --border: #2a2a2a;
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bot: env(safe-area-inset-bottom, 0px);
+        }
+
+        *, *::before, *::after { 
+            margin: 0; padding: 0; box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+        
+        html, body { 
+            height: 100%; 
+            background: var(--black); 
+            color: var(--text); 
+            font-family: 'Barlow', sans-serif; 
+            overflow-x: hidden; 
+        }
+
+        body { display: flex; flex-direction: column; min-height: 100dvh; }
+
+        .safe-top { height: calc(var(--safe-top) + 8px); background: var(--dark); flex-shrink: 0; }
+
+        header {
+            background: var(--dark);
+            border-bottom: 3px solid var(--accent);
+            padding: 16px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 900;
+            font-size: 34px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+        .logo span { color: var(--accent); }
+
+        .tagline {
+            font-size: 12px;
+            letter-spacing: 2.5px;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 16px;
+            padding-bottom: calc(85px + var(--safe-bot));
+        }
+
+        .week-selector {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .week-btn {
+            background: var(--accent);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 20px;
+            cursor: pointer;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .week-info { flex: 1; text-align: center; }
+        .week-label { font-size: 11px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+        .week-number {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 900;
+            font-size: 32px;
+            color: var(--gold);
+            line-height: 1;
+        }
+
+        .day-pills {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .day-pill {
+            flex: 1;
+            padding: 14px 8px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13.5px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .day-pill.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 60, 0, 0.3);
+        }
+
+        .gen-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(90deg, var(--accent), #ff5c2d);
+            border: none;
+            color: white;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 900;
+            font-size: 17px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 6px 20px rgba(255, 60, 0, 0.25);
+            transition: transform 0.1s;
+        }
+
+        .gen-btn:active { transform: scale(0.97); }
+        .gen-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .loading-state {
+            text-align: center;
+            padding: 60px 20px 40px;
+            display: none;
+        }
+        .loading-state.show { display: block; }
+
+        .loading-spinner {
+            font-size: 52px;
+            animation: spin 1.1s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading-text { font-family: 'Barlow Condensed', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 2px; color: var(--text); }
+        .loading-phase { font-size: 13px; color: var(--accent); margin-top: 12px; font-style: italic; }
+
+        .session-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            display: none;
+        }
+        .session-card.show { display: block; }
+
+        .session-header {
+            background: rgba(255, 60, 0, 0.12);
+            border-bottom: 3px solid var(--accent);
+            padding: 20px;
+        }
+
+        .session-day { font-size: 12px; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; margin-bottom: 6px; }
+        .session-name {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 900;
+            font-size: 29px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            line-height: 1.1;
+        }
+
+        .session-meta { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+
+        .meta-chip {
+            font-size: 11px;
+            padding: 4px 10px;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,60,0,0.4);
+            color: var(--muted);
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .meta-chip.gold { color: var(--gold); border-color: rgba(255,194,0,0.5); }
+
+        .block { border-bottom: 1px solid var(--border); }
+        .block:last-child { border-bottom: none; }
+
+        .block-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 18px 20px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+        }
+        .block-header:hover { background: var(--card2); }
+
+        .block-number {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 900;
+            font-size: 32px;
+            color: var(--accent);
+            width: 36px;
+            flex-shrink: 0;
+        }
+
+        .block-info { flex: 1; }
+        .block-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 17px; letter-spacing: 1px; text-transform: uppercase; }
+        .block-subtitle { font-size: 13px; color: var(--muted); margin-top: 3px; }
+        .block-duration { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; color: var(--gold); }
+
+        .block-content {
+            display: none;
+            padding: 0 20px 20px;
+            font-size: 13.5px;
+            line-height: 1.65;
+            color: #ccc;
+        }
+        .block-content.show { display: block; }
+
+        .block-content ul { list-style: none; padding-left: 4px; }
+        .block-content li { margin-bottom: 9px; padding-left: 20px; position: relative; }
+        .block-content li::before { content: "▸"; position: absolute; left: 0; color: var(--accent); }
+        .block-content li strong { color: var(--text); font-weight: 600; }
+
+        .wod-format {
+            background: var(--black);
+            border: 1px solid rgba(255, 60, 0, 0.3);
+            padding: 12px 14px;
+            margin: 12px 0;
+            border-radius: 8px;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: 1.5px;
+        }
+
+        .wod-content {
+            background: var(--black);
+            border: 1px solid var(--border);
+            padding: 14px;
+            margin: 12px 0;
+            border-radius: 8px;
+            color: #ddd;
+            white-space: pre-wrap;
+            font-family: 'Barlow Condensed', monospace;
+            font-size: 12px;
+        }
+
+        .notes-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 20px;
+        }
+
+        .note-card {
+            background: rgba(255, 194, 0, 0.06);
+            border: 1px solid rgba(255, 194, 0, 0.25);
+            padding: 14px;
+            border-radius: 10px;
+        }
+        .note-card.escalado {
+            background: rgba(0, 232, 122, 0.06);
+            border-color: rgba(0, 232, 122, 0.25);
+        }
+
+        .note-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            color: var(--gold);
+        }
+        .note-card.escalado .note-title { color: var(--green); }
+
+        .note-card ul { list-style: disc; padding-left: 14px; }
+        .note-card li { font-size: 12px; color: #aaa; line-height: 1.6; margin-bottom: 6px; }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--dark);
+            border-top: 1px solid var(--border);
+            display: flex;
+            z-index: 200;
+            padding-bottom: var(--safe-bot);
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            padding: 10px 0;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: color 0.2s;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .nav-item.active { color: var(--accent); }
+        .nav-icon { font-size: 26px; margin-bottom: 2px; }
+
+        .error-state {
+            background: rgba(255, 60, 0, 0.1);
+            border: 1px solid rgba(255, 60, 0, 0.4);
+            padding: 18px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .error-state.show { display: block; }
+        .error-state strong { color: var(--accent); }
+    </style>
+</head>
+<body>
+
+<div class="safe-top"></div>
+
+<header>
+    <div class="logo">BOX<span>.</span>COACH</div>
+    <div class="tagline">Generador IA Elite — Variabilidad Total</div>
+</header>
+
+<div class="main-content">
+
+    <div class="week-selector">
+        <button class="week-btn" onclick="changeWeek(-1)">−</button>
+        <div class="week-info">
+            <div class="week-label">Semana</div>
+            <div class="week-number" id="week-display">S1</div>
+        </div>
+        <button class="week-btn" onclick="changeWeek(1)">+</button>
+    </div>
+
+    <div class="day-pills">
+        <div class="day-pill active" id="day-0" onclick="selectDay(0)">LUN</div>
+        <div class="day-pill" id="day-1" onclick="selectDay(1)">MAR</div>
+        <div class="day-pill" id="day-2" onclick="selectDay(2)">MIÉ</div>
+        <div class="day-pill" id="day-3" onclick="selectDay(3)">JUE</div>
+    </div>
+
+    <div class="error-state" id="error-state">
+        <strong>⚠️ Error de Conexión IA</strong><br>
+        <small>Verifica tu internet y reintenta.</small>
+    </div>
+
+    <button class="gen-btn" id="gen-btn" onclick="generateSession()">
+        ⚡ GENERAR SESIÓN IA
+    </button>
+
+    <div class="loading-state" id="loading">
+        <div class="loading-spinner">⚙️</div>
+        <div class="loading-text">CREANDO SESIÓN ELITE...</div>
+        <div class="loading-phase" id="loading-phase">Optimizando estructura...</div>
+    </div>
+
+    <div class="session-card" id="session-card">
+        <div class="session-header">
+            <div class="session-day" id="session-day">Lunes · Semana 1</div>
+            <div class="session-name" id="session-name">—</div>
+            <div class="session-meta">
+                <span class="meta-chip" id="meta-pattern">Full Body</span>
+                <span class="meta-chip gold">☀ Verano</span>
+            </div>
+        </div>
+
+        <div class="block">
+            <div class="block-header">
+                <div style="font-size:18px">🎯</div>
+                <div class="block-info"><div class="block-title">Objetivo</div></div>
+            </div>
+            <div class="block-content show" id="session-objetivo"></div>
+        </div>
+
+        <div class="block">
+            <div class="block-header" onclick="toggleBlock(this)">
+                <div class="block-number">01</div>
+                <div class="block-info">
+                    <div class="block-title">Calentamiento</div>
+                    <div class="block-subtitle" id="cal-sub">Dinámico</div>
+                </div>
+                <div class="block-duration" id="cal-time">9 MIN</div>
+            </div>
+            <div class="block-content" id="cal-content"></div>
+        </div>
+
+        <div class="block">
+            <div class="block-header" onclick="toggleBlock(this)">
+                <div class="block-number">02</div>
+                <div class="block-info">
+                    <div class="block-title" id="str-title">Strength</div>
+                    <div class="block-subtitle" id="str-sub">Fuerza</div>
+                </div>
+                <div class="block-duration" id="str-time">17 MIN</div>
+            </div>
+            <div class="block-content" id="str-content"></div>
+        </div>
+
+        <div class="block">
+            <div class="block-header" onclick="toggleBlock(this)">
+                <div class="block-number">03</div>
+                <div class="block-info">
+                    <div class="block-title" id="wod-title">WOD</div>
+                    <div class="block-subtitle" id="wod-sub">Metcon</div>
+                </div>
+                <div class="block-duration" id="wod-time">20 MIN</div>
+            </div>
+            <div class="block-content" id="wod-content"></div>
+        </div>
+
+        <div class="block">
+            <div class="block-header" onclick="toggleBlock(this)">
+                <div class="block-number">04</div>
+                <div class="block-info">
+                    <div class="block-title">Cooldown</div>
+                    <div class="block-subtitle">Movilidad</div>
+                </div>
+                <div class="block-duration">5 MIN</div>
+            </div>
+            <div class="block-content" id="cool-content"></div>
+        </div>
+
+        <div class="notes-section">
+            <div class="note-card">
+                <div class="note-title">☀ Verano</div>
+                <div id="heat-notes"></div>
+            </div>
+            <div class="note-card escalado">
+                <div class="note-title">Escalados</div>
+                <div id="scale-notes"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bottom-nav">
+    <button class="nav-item active" onclick="scrollToTop()"><div class="nav-icon">🏠</div><div>Inicio</div></button>
+    <button class="nav-item" onclick="shareSession()"><div class="nav-icon">📤</div><div>Compartir</div></button>
+    <button class="nav-item" onclick="showInfo()"><div class="nav-icon">ℹ️</div><div>Info</div></button>
+</div>
+
+<script>
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+
+const DAYS = ['Lunes', 'Martes', 'Miércoles', 'Jueves'];
+const LOADING_PHASES = [
+    'Analizando patrón de movimiento…',
+    'Calculando progresión semanal…',
+    'Diseñando estructura de 50 min…',
+    'Adaptando warm-up específico…',
+    'Generando variabilidad única…',
+    'Finalizando sesión profesional…'
+];
+
+let state = { week: 1, day: 0, sessions: {} };
+
+try {
+    const saved = localStorage.getItem('boxcoach-sessions');
+    if (saved) state.sessions = JSON.parse(saved);
+    const savedWeek = localStorage.getItem('boxcoach-week');
+    if (savedWeek) state.week = parseInt(savedWeek);
+} catch(e) {}
+
+function changeWeek(delta) {
+    state.week = Math.max(1, Math.min(12, state.week + delta));
+    document.getElementById('week-display').textContent = `S${state.week}`;
+    localStorage.setItem('boxcoach-week', state.week);
+    updateSessionDisplay();
+}
+
+function selectDay(index) {
+    state.day = index;
+    document.querySelectorAll('.day-pill').forEach((p, i) => p.classList.toggle('active', i === index));
+    updateSessionDisplay();
+}
+
+function updateSessionDisplay() {
+    const key = `S${state.week}-${state.day}`;
+    const session = state.sessions[key];
+    if (session) {
+        renderSession(session);
+        document.getElementById('session-card').classList.add('show');
+        document.getElementById('gen-btn').textContent = '⚡ REGENERAR SESIÓN';
+        document.getElementById('error-state').classList.remove('show');
+    } else {
+        document.getElementById('session-card').classList.remove('show');
+        document.getElementById('gen-btn').textContent = '⚡ GENERAR SESIÓN IA';
+    }
+}
+
+async function generateSession() {
+    const btn = document.getElementById('gen-btn');
+    btn.disabled = true;
+    document.getElementById('loading').classList.add('show');
+    document.getElementById('session-card').classList.remove('show');
+    document.getElementById('error-state').classList.remove('show');
+
+    let phase = 0;
+    const phaseInterval = setInterval(() => {
+        phase = (phase + 1) % LOADING_PHASES.length;
+        document.getElementById('loading-phase').textContent = LOADING_PHASES[phase];
+    }, 1600);
+
+    const dayName = DAYS[state.day];
+    const week = state.week;
+
+    const prevSessions = [0,1,2,3]
+        .filter(d => d !== state.day)
+        .map(d => {
+            const s = state.sessions[`S${week}-${d}`];
+            return s ? `${DAYS[d]}: ${s.nombre} (${s.tipo})` : null;
+        })
+        .filter(Boolean)
+        .join('; ');
+
+    const dayGuide = [
+        "LUNES - Inicio fuerte: Full Body o Push-dominante. Warm-up: Movilidad general + técnica de movimiento de fuerza. Strength: Complejo de barra o series de fuerza pura (NO EMOM). WOD: AMRAP o For Time (explosividad inicial). Intensidad: 8-9/10.",
+        "MARTES - Acumula fatiga: Pull-dominante o Posterior Chain. Warm-up: Cadena posterior activación + técnica de tracción (dead hangs, scapular pulls). Strength: Peso muerto, filas, trabajo de espalda (series o EMOM). WOD: EMOM o Density (control de intensidad). Intensidad: 7-8/10.",
+        "MIÉRCOLES - Mitad de semana: Gymnastics o Skill-orientado. Warm-up: Movilidad articular profunda + progresión gimnástica (hollow body, handstand hold). Strength: Dominadas, anillas, HSPU, L-sits, muscle-up progressions. WOD: Descending Ladder o Chipper (variedad de movimientos). Intensidad: 7-8/10.",
+        "JUEVES - Cierre explosivo: Legs + Potencia. Warm-up: Activación neuromuscular + saltos progresivos (boxes, broad jumps). Strength: Squats, cleans, potencia de tren inferior (every 90s o series). WOD: Density o Partner (max reps en tiempo fijo). Intensidad: 8/10."
+    ];
+
+    const prompt = `ERES UN ENTRENADOR PROFESIONAL DE CROSSFIT DE ÉLITE CON MÁSTER EN FISIOLOGÍA DEL EJERCICIO.
+
+CONTEXTO PRECISO:
+• Día: ${dayName} (Semana ${week})
+• Sesiones ya generadas esta semana: ${prevSessions || 'ninguna - es el PRIMER día'}
+• Máximo 14 participantes
+• Clima: VERANO (control estricto de volumen, manejo de calor)
+• Duración exacta: 50 MINUTOS
+
+DIRECTIVA VARIABILIDAD TOTAL - ESTO ES CRÍTICO:
+${dayGuide[state.day]}
+
+MATERIAL DISPONIBLE:
+7 barras olímpicas (3 barras técnicas ≤40kg carga total), kettlebells hasta 16kg, 200+kg en discos, mancuernas hasta 25kg, 3 cajones pliométricos, 3 barras de dominadas, 2 anillas gimnásticas, 8 TRX, 2 bancos planos, 1 rack para barra pesada, 3 balones medicinales (6/9/12kg), combas, cuerda de batalla.
+
+ESTRUCTURA DE 50 MINUTOS - EXACTA:
+1. CALENTAMIENTO: 8-10 min
+   - DEBE SER 100% ESPECÍFICO PARA LOS MOVIMIENTOS DE HOY
+   - Activar EXACTAMENTE las zonas que se trabajarán en strength y WOD
+   - Si hoy hay squats → activación de cadera, tobillo, glúteos
+   - Si hoy hay tracciones → dead hangs, scapular pulls, movilidad de hombro
+   - Si hoy hay explosividad → saltos progresivos, activación neuromuscular
+   - NUNCA repetir estructura de otro día: variar orden, duración de cada paso, ejercicios específicos
+
+2. STRENGTH: 15-18 min
+   - Cargas precisas en kg o % 1RM
+   - Tiempos de descanso exactos
+   - Volumen total calculado
+   - FORMATO ÚNICO POR DÍA:
+     * Lunes: 5x5, 4x8, Complejo de barra, o series de fuerza pura
+     * Martes: EMOM 15-20 min, Density, o Ondulado (vary rep scheme)
+     * Miércoles: Skill work (EMOM 12-15), progresiones gimnásticas, circuits
+     * Jueves: Every 90s, EMOM 16, Potencia + velocidad
+
+3. WOD PRINCIPAL: 18-20 min
+   - FORMATO NUNCA REPETIDO ENTRE DÍAS
+   - Lunes: AMRAP, For Time, o Chipper
+   - Martes: EMOM, Density, o Descending Ladder (NUNCA AMRAP)
+   - Miércoles: For Time, Descending Ladder, o Chipper (NUNCA EMOM ni Density)
+   - Jueves: Density, Partner, o Hybrid (NUNCA AMRAP)
+   - Ejercicios, reps y cargas DISTINTAS cada día
+   - Tiempos de trabajo variados (no siempre 20 min exacto)
+
+4. COOLDOWN: 3-5 min
+   - Movilidad específica de zonas trabajadas
+   - Respiración y recuperación
+
+RESPONDE SOLO EN JSON VÁLIDO - SIN MARKDOWN - SIN COMILLAS ESCAPADAS NI CARACTERES ESPECIALES:
+
+{
+  "nombre": "NOMBRE ÉPICO ÚNICO Y MOTIVADOR",
+  "tipo": "Tipo sesión (ej: Push Complex + AMRAP, Pull Density, Gymnastics Chipper)",
+  "patron": "Push | Pull | Legs | Full Body",
+  "estimulo": "Estímulo fisiológico en 1 línea",
+  "objetivo": "Objetivo motivador de 2-3 frases",
+  "calentamiento": {
+    "duracion": "9 min",
+    "enfoque": "Descripción del enfoque específico del warm-up para hoy",
+    "items": [
+      "Paso 1 ESPECÍFICO (ej: 2 min de movilidad de cadera porque hoy hay squats)",
+      "Paso 2 ESPECÍFICO",
+      "Paso 3 ESPECÍFICO",
+      "Paso 4 ESPECÍFICO"
+    ]
+  },
+  "strength": {
+    "titulo": "Nombre del bloque de fuerza",
+    "subtitulo": "Descripción breve (ej: Fuerza pura + potencia)",
+    "duracion": "17 min",
+    "formato": "Formato exacto (ej: 5x5, EMOM 15 min, Every 90s, Complejo, etc.)",
+    "descripcion": "Descripción COMPLETA: Ejercicio(s), reps EXACTAS, cargas en kg o %, descanso entre series/rounds, volumen total, cálculos de intensidad",
+    "notas": [
+      "Nota logística para 14 personas (rotaciones, estaciones)",
+      "Consejo técnico de ejecución del movimiento principal",
+      "Cálculo preciso de cargas recomendadas",
+      "Progresión serie a serie o ajuste por fatiga"
+    ]
+  },
+  "wod": {
+    "nombre": "NOMBRE ÉPICO ÚNICO DEL WOD",
+    "formato": "Formato preciso (AMRAP 20min | For Time | Descending Ladder 21-15-9 | EMOM 16 | Density 18min | Partner | Hybrid)",
+    "duracion": "18-20 min",
+    "descripcion": "Descripción ESTRUCTURADA: Ejercicios principales, reps/pesos exactos, estructura clara (si es AMRAP cómo son las rondas, si es For Time qué orden, si es EMOM qué va en cada minuto), tiempos totales",
+    "score": "Cómo se puntúa (rondas+reps, tiempo total, rondas completas, etc.)",
+    "logistica": "Distribución precisa: Cómo se organizan 14 atletas, cuántos grupos, estaciones, turnos, qué material usa cada grupo",
+    "notas": [
+      "Consejo de ritmo y pacing específico",
+      "Recomendación de RPE y escala de intensidad",
+      "Nota especial para el calor veraniego en esta sesión"
+    ]
+  },
+  "cooldown": {
+    "duracion": "5 min",
+    "enfoque": "Enfoque específico de movilidad para hoy",
+    "items": [
+      "Ejercicio 1 ESPECÍFICO (ej: hip flexor stretch porque hoy fue leg day)",
+      "Ejercicio 2",
+      "Ejercicio 3",
+      "Ejercicio 4"
+    ]
+  },
+  "calor": [
+    "Protocolo de hidratación específico para este WOD",
+    "RPE máximo recomendado y señales de sobreesfuerzo",
+    "Estrategia de enfriamiento post-entreno (agua, ventilación, etc.)"
+  ],
+  "escalados": [
+    "Escalado movimiento principal 1 (ej: si hay thrusters -> goblet squat o shoulder press separados)",
+    "Escalado movimiento 2",
+    "Escalado movimiento 3",
+    "Escalado movimiento 4",
+    "Escalado movimiento 5"
+  ]
+}`;
+
+    try {
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: 'claude-sonnet-4-6',
+                max_tokens: 2000,
+                messages: [{ role: 'user', content: prompt }]
+            })
+        });
+
+        clearInterval(phaseInterval);
+        const data = await response.json();
+
+        if (!response.ok) throw new Error(data.error?.message || 'API Error');
+
+        let raw = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+        raw = raw.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+        
+        const session = JSON.parse(raw);
+        session._key = `S${state.week}-${state.day}`;
+        session._week = state.week;
+        session._day = state.day;
+
+        state.sessions[session._key] = session;
+        localStorage.setItem('boxcoach-sessions', JSON.stringify(state.sessions));
+
+        document.getElementById('loading').classList.remove('show');
+        renderSession(session);
+        document.getElementById('session-card').classList.add('show');
+        document.getElementById('gen-btn').textContent = '⚡ REGENERAR SESIÓN';
+
+    } catch (err) {
+        clearInterval(phaseInterval);
+        document.getElementById('loading').classList.remove('show');
+        document.getElementById('error-state').classList.add('show');
+        console.error('Error:', err);
+    } finally {
+        btn.disabled = false;
+    }
+}
+
+function renderSession(s) {
+    document.getElementById('session-day').textContent = `${DAYS[s._day]} · Semana ${s._week}`;
+    document.getElementById('session-name').textContent = s.nombre;
+    document.getElementById('meta-pattern').textContent = s.patron;
+    document.getElementById('session-objetivo').innerHTML = `<p style="font-size:13.5px;color:#ccc;line-height:1.7;">${s.objetivo}</p>`;
+
+    document.getElementById('cal-time').textContent = s.calentamiento.duracion;
+    document.getElementById('cal-sub').textContent = s.calentamiento.enfoque;
+    document.getElementById('cal-content').innerHTML = `<ul>${s.calentamiento.items.map(i => `<li>${i}</li>`).join('')}</ul>`;
+
+    document.getElementById('str-title').textContent = s.strength.titulo;
+    document.getElementById('str-sub').textContent = s.strength.subtitulo;
+    document.getElementById('str-time').textContent = s.strength.duracion;
+    document.getElementById('str-content').innerHTML = `
+        <div class="wod-format">${s.strength.formato}</div>
+        <div class="wod-content">${s.strength.descripcion}</div>
+        <ul>${s.strength.notas.map(n => `<li>${n}</li>`).join('')}</ul>
+    `;
+
+    document.getElementById('wod-title').textContent = s.wod.nombre;
+    document.getElementById('wod-sub').textContent = s.wod.formato;
+    document.getElementById('wod-time').textContent = s.wod.duracion;
+    document.getElementById('wod-content').innerHTML = `
+        <div class="wod-format">${s.wod.formato}</div>
+        <div class="wod-content">${s.wod.descripcion}</div>
+        <p style="margin:10px 0 8px; font-size:13px; color:#999;"><strong>Puntuación:</strong> ${s.wod.score}</p>
+        <p style="margin:8px 0; font-size:13px; color:#999;"><strong>Logística:</strong> ${s.wod.logistica}</p>
+        <ul>${s.wod.notas.map(n => `<li>${n}</li>`).join('')}</ul>
+    `;
+
+    document.getElementById('cool-content').innerHTML = `<p style="font-size:12px;color:#999;margin-bottom:10px;"><strong>Enfoque:</strong> ${s.cooldown.enfoque}</p><ul>${s.cooldown.items.map(i => `<li>${i}</li>`).join('')}</ul>`;
+    document.getElementById('heat-notes').innerHTML = `<ul>${s.calor.map(c => `<li>${c}</li>`).join('')}</ul>`;
+    document.getElementById('scale-notes').innerHTML = `<ul>${s.escalados.map(e => `<li>${e}</li>`).join('')}</ul>`;
+
+    setTimeout(() => {
+        document.querySelectorAll('.block-content').forEach(c => c.classList.add('show'));
+    }, 100);
+}
+
+function toggleBlock(header) {
+    const content = header.nextElementSibling;
+    if (content) content.classList.toggle('show');
+}
+
+function scrollToTop() { 
+    document.querySelector('.main-content').scrollTo({ top: 0, behavior: 'smooth' }); 
+}
+
+function shareSession() {
+    const key = `S${state.week}-${state.day}`;
+    const s = state.sessions[key];
+    if (!s) return;
+    const text = `${s.nombre}\n${DAYS[s._day]} - Semana ${s._week}\n\n${s.objetivo}\n\nGenerado con BOX.COACH IA`;
+    if (navigator.share) {
+        navigator.share({ title: 'BOX COACH', text: text });
+    } else {
+        alert(text);
+    }
+}
+
+function showInfo() {
+    alert('BOX COACH IA ELITE\n\n✓ Cada warm-up único + específico\n✓ Cargas y tiempos diferentes cada día\n✓ Formatos WOD nunca repetidos\n✓ Variabilidad total garantizada\n✓ Escalados completos\n✓ Modo verano optimizado\n\nNO repite entre días.');
+}
+
+document.getElementById('week-display').textContent = `S${state.week}`;
+updateSessionDisplay();
+</script>
+</body>
+</html>
