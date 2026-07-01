@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BOX.COACH">
+    <meta name="theme-color" content="#0d0d0d">
+    <title>BOX.COACH Plan Mensual Profesional</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Barlow:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --black: #0d0d0d;
+            --dark: #141414;
+            --card: #1c1c1e;
+            --accent: #ff3c00;
+            --gold: #ffc200;
+            --text: #f5f5f7;
+            --muted: #8e8e93;
+            --border: #2c2c2e;
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--black);
+            color: var(--text);
+            font-family: 'Barlow', sans-serif;
+            padding: env(safe-area-inset-top, 20px) 16px calc(env(safe-area-inset-bottom, 20px) + 20px);
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 14px;
+            padding-top: 10px;
+        }
+
+        .logo {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 900;
+            font-size: 34px;
+            letter-spacing: 3px;
+            color: var(--text);
+            text-transform: uppercase;
+        }
+
+        .logo span { color: var(--accent); }
+        .subtitle { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); }
+
+        .month-selector {
+            background: var(--dark);
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 14px;
+        }
+        .month-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 13px;
+            color: var(--gold);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+        .week-pills {
+            display: flex;
+            gap: 6px;
+        }
+        .week-pill {
+            flex: 1;
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 8px 0;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        .week-pill.active {
+            background: var(--gold);
+            color: var(--black);
+            border-color: var(--gold);
+        }
+
+        .day-pills {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+        .day-pill {
+            flex: 1;
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 12px 0;
+            text-align: center;
+            border-radius: 10px;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        .day-pill.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .actions-grid {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .btn {
+            flex: 1;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 900;
+            font-size: 15px;
+            text-transform: uppercase;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+        }
+        .btn-main { background: var(--text); color: var(--black); }
+        .btn-accent { background: var(--accent); color: white; }
+
+        .wod-container { display: block; animation: fadeIn 0.3s ease-out forwards; }
+        .card-session { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; }
+        .wod-header { margin-bottom: 14px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .wod-title { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 900; text-transform: uppercase; color: var(--accent); }
+        .wod-meta { font-size: 11px; color: var(--text); font-weight: 600; text-transform: uppercase; margin-top: 2px; }
+        
+        .info-row { background: var(--dark); border-radius: 8px; padding: 10px 12px; font-size: 13px; margin-bottom: 14px; border-left: 2px solid var(--gold); }
+        .info-row strong { color: var(--gold); text-transform: uppercase; font-size: 11px; display: block; }
+
+        .section-block { margin-bottom: 12px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 6px 10px; border-radius: 6px; margin-bottom: 6px; border: 1px solid var(--border); }
+        .section-name { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; text-transform: uppercase; font-weight: 700; }
+        .section-time { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; color: var(--accent); font-weight: 700; background: rgba(255, 60, 0, 0.1); padding: 1px 6px; border-radius: 4px; }
+        .section-content { font-size: 13px; line-height: 1.5; color: #d1d1d6; }
+        .section-content ul { list-style: none; }
+        .section-content li { margin-bottom: 4px; position: relative; padding-left: 12px; }
+        .section-content li::before { content: "•"; position: absolute; left: 0; color: var(--accent); }
+
+        .coach-card { background: rgba(255, 194, 0, 0.04); border: 1px dashed rgba(255, 194, 0, 0.25); border-radius: 12px; padding: 12px; margin-top: 14px; font-size: 12.5px; color: #e5e5ea; }
+        .coach-card title { display: block; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; color: var(--gold); text-transform: uppercase; font-weight: 700; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">BOX<span>.</span>COACH</div>
+        <div class="subtitle">Planificación Mensual Estructurada</div>
+    </header>
+
+    <div class="month-selector">
+        <div class="month-title">Fase de Mesociclo Actual</div>
+        <div class="week-pills">
+            <div class="week-pill active" id="w0" onclick="selectWeek(0)">Semana 1<br>(Volumen)</div>
+            <div class="week-pill" id="w1" onclick="selectWeek(1)">Semana 2<br>(Carga)</div>
+            <div class="week-pill" id="w2" onclick="selectWeek(2)">Semana 3<br>(Intensidad)</div>
+            <div class="week-pill" id="w3" onclick="selectWeek(3)">Semana 4<br>(Descarga)</div>
+        </div>
+    </div>
+
+    <div class="day-pills">
+        <div class="day-pill active" id="d0" onclick="selectDay(0)">Lun</div>
+        <div class="day-pill" id="d1" onclick="selectDay(1)">Mar</div>
+        <div class="day-pill" id="d2" onclick="selectDay(2)">Mié</div>
+        <div class="day-pill" id="d3" onclick="selectDay(3)">Jue</div>
+    </div>
+
+    <div class="actions-grid">
+        <button class="btn btn-main" onclick="loadSavedOrEmpty()">📖 Ver Guardado</button>
+        <button class="btn btn-accent" onclick="generateAndSaveWOD()">⚡ Nuevo Entreno</button>
+    </div>
+
+    <div class="wod-container" id="wod-card">
+        <div class="card-session">
+            <div class="wod-header">
+                <div class="wod-title" id="wod-title">Cargando Plan...</div>
+                <div class="wod-meta" id="wod-meta">Preparando pizarra</div>
+            </div>
+
+            <div class="info-row">
+                <strong>Enfoque y Carga Semanal Ajustada:</strong>
+                <span id="wod-estimulo">—</span>
+            </div>
+
+            <div class="section-block">
+                <div class="section-header">
+                    <span class="section-name">1. Calentamiento (Warm-Up)</span>
+                    <span class="section-time">9 MINUTOS</span>
+                </div>
+                <div class="section-content" id="c-cal"></div>
+            </div>
+
+            <div class="section-block">
+                <div class="section-header">
+                    <span class="section-name">2. Bloque de Fuerza / Potencia</span>
+                    <span class="section-time">16 MINUTOS</span>
+                </div>
+                <div class="section-content" id="c-str"></div>
+            </div>
+
+            <div class="section-block">
+                <div class="section-header">
+                    <span class="section-name">3. WOD (Alta Intensidad)</span>
+                    <span class="section-time">20 MINUTOS</span>
+                </div>
+                <div class="section-content" id="c-wod"></div>
+            </div>
+
+            <div class="section-block">
+                <div class="section-header">
+                    <span class="section-name">4. Vuelta a la Calma</span>
+                    <span class="section-time">5 MINUTOS</span>
+                </div>
+                <div class="section-content" id="c-clm"></div>
+            </div>
+
+            <div class="coach-card">
+                <title>Logística y Gestión de Materiales (14 Atletas)</title>
+                <p id="c-notes">—</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentWeek = 0;
+        let currentDay = 0;
+
+        const modificadoresSemanales = [
+            { nombre: "Semana 1: Adaptación Estructural", fuerza: "4 Series x 8 Reps (60-65% 1RM). Foco en tempo controlado.", metcon: "Volumen medio/alto. Ritmo constante (RPE 7/10)." },
+            { nombre: "Semana 2: Carga Progresiva", fuerza: "5 Series x 5 Reps (70-75% 1RM). Suben los kilos en barra.", metcon: "Intensidad alta por intervalos. Ritmo fuerte (RPE 8/10)." },
+            { nombre: "Semana 3: Pico de Fuerza e Impacto", fuerza: "5 Series x 3 Reps (80-85% 1RM). Máxima carga del mes.", metcon: "AMRAP Sprint explosivo de alta densidad láctica (RPE 9/10)." },
+            { nombre: "Semana 4: Descarga Activa y Supercompensación", fuerza: "3 Series x 6 Reps (50% 1RM). Trabajo técnico sin fallo.", metcon: "Circuito aeróbico regenerativo suave (RPE 6/10)." }
+        ];
+
+        const bancoEjercicios = {
+            0: {
+                fuerza: ["Complejo Olímpico de Front Squat + Push Press", "Thrusters pesados combinados con Clean desde colgaje"],
+                cardio: ["400m Carrera exterior", "60 Saltos dobles de comba"],
+                core: ["15 Kettlebell Swings Americanos (16kg)", "15 Elevaciones de piernas al pecho"],
+                accessory: ["12 Burpees sobre el cajón (usar los 3 cajones pliométricos con rotación)", "12 Flexiones de brazos estrictas"],
+                enfoque: "CADENA ANTERIOR (Empujes axiales y fuerza de cuádriceps)."
+            },
+            1: {
+                fuerza: ["Dominadas estrictas con lastre o progresión en TRX", "Remo inclinado pesado con barra estándar"],
+                cardio: ["200m Sprint exterior", "45s Trabajo explosivo de Cuerda de batalla"],
+                core: ["15 Pesos Muertos con barra (Máx 75kg en parejas)", "15 Peso muerto sumo con kettlebell"],
+                accessory: ["12 Lanzamientos de Balón medicinal (6/9/12kg rotativos)", "12 Remos invertidos en anillas"],
+                enfoque: "CADENA POSTERIOR (Tracciones superiores y bisagra de cadera profunda)."
+            },
+            2: {
+                fuerza: ["Back Squats (Sentadilla trasera controlada)", "Press de Banca con mancuernas grandes o Floor Press"],
+                cardio: ["50 Saltos dobles de comba", "300m Carrera a ritmo controlado"],
+                core: ["16 Zancadas caminando con carga Goblet", "12 Sentadillas búlgaras asimétricas"],
+                accessory: ["15 Flexiones en el suelo", "12 Saltos rápidos a caja (Usa los 3 cajones disponibles)"],
+                enfoque: "TRABAJO UNILATERAL Y EMPUJE HORIZONTAL (Simetría e hipertrofia funcional)."
+            },
+            3: {
+                fuerza: ["Peso Muerto Rumano estricto", "Complejo gimnástico de flexiones e isometría en Hollow"],
+                cardio: ["400m Carrera a pie exterior", "45s Continuos de Cuerda de batalla"],
+                core: ["20 Kettlebell Sumo Deadlift High Pulls", "15 Thrusters con mancuerna unilateral"],
+                accessory: ["15 Burpees limpios con pecho a suelo", "15 Lanzamientos de Balón medicinal potentes"],
+                enfoque: "METCON METABÓLICO GLOBAL (Vaciado glucolítico completo y lavado de lactato)."
+            }
+        };
+
+        function selectWeek(wk) {
+            currentWeek = wk;
+            document.querySelectorAll('.week-pill').forEach((p, idx) => p.classList.toggle('active', idx === wk));
+            loadSavedOrEmpty();
+        }
+
+        function selectDay(dy) {
+            currentDay = dy;
+            document.querySelectorAll('.day-pill').forEach((p, idx) => p.classList.toggle('active', idx === dy));
+            loadSavedOrEmpty();
+        }
+
+        function getStorageKey() {
+            return `boxcoach_w${currentWeek}_d${currentDay}`;
+        }
+
+        function loadSavedOrEmpty() {
+            const key = getStorageKey();
+            const savedData = localStorage.getItem(key);
+
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                renderWOD(data);
+            } else {
+                generateAndSaveWOD();
+            }
+        }
+
+        function generateAndSaveWOD() {
+            const banco = bancoEjercicios[currentDay];
+            const mod = modificadoresSemanales[currentWeek];
+
+            const fuerzaBase = banco.fuerza[Math.floor(Math.random() * banco.fuerza.length)];
+            const cardio = banco.cardio[Math.floor(Math.random() * banco.cardio.length)];
+            const core = banco.core[Math.floor(Math.random() * banco.core.length)];
+            const acc = banco.accessory[Math.floor(Math.random() * banco.accessory.length)];
+
+            const nuevoWOD = {
+                titulo: `SYSTEM PLAN: DÍA ${currentDay + 1}`,
+                meta: `Mesociclo Mensual — Semana ${currentWeek + 1} (${mod.nombre})`,
+                enfoque: `${banco.enfoque} | ${mod.nombre}`,
+                cal: `<ul><li><strong>Movilidad (4'):</strong> Preparación articular específica para los vectores de fuerza de hoy.</li><li><strong>Activación (5'):</strong> 3 Rondas: 150m carrera suave + 10 Reps del ejercicio de fuerza con barra vacía o pica.</li></ul>`,
+                fuerza: `<ul><li><strong>${fuerzaBase}:</strong></li><li>Prescripción del mes: <strong style="color:var(--gold);">${mod.fuerza}</strong>.</li><li>Organización: Trabajo obligatorio en parejas compartiendo las 7 barras libres del Box.</li></ul>`,
+                wod: `<ul><li><strong>Trabajo a Intervalos o AMRAP (20 Minutos):</strong></li><li>Estímulo metabólico: <strong>${mod.metcon}</strong></li><li>• Bloque A (Cardio): ${card}</li><li>• Bloque B (Estructura): ${core}</li><li>• Bloque C (Material): ${acc}</li><li><br><strong>LOGÍSTICA ANTI-ATASCO:</strong> Divide la clase de 14 alumnos en dos subgrupos (Grupo A empieza en Bloque A, Grupo B empieza en Bloque C) para liberar el stock crítico de 3 cajones y 3 balones.</li></ul>`,
+                clm: `<ul><li>5 Minutos de estiramientos de las cadenas acortadas y respiraciones controladas tumbados en colchoneta.</li></ul>`,
+                notes: `Priorizar técnica impecable ante la fatiga de la ${mod.nombre}. Ajustar hidratación obligatoria en atletas.`
+            };
+
+            localStorage.setItem(getStorageKey(), JSON.stringify(nuevoWOD));
+            renderWOD(nuevoWOD);
+        }
+
+        function renderWOD(data) {
+            document.getElementById('wod-title').textContent = data.titulo;
+            document.getElementById('wod-meta').textContent = data.meta;
+            document.getElementById('wod-estimulo').textContent = data.enfoque;
+            document.getElementById('c-cal').innerHTML = data.cal;
+            document.getElementById('c-str').innerHTML = data.fuerza;
+            document.getElementById('c-wod').innerHTML = data.wod;
+            document.getElementById('c-clm').innerHTML = data.clm;
+            document.getElementById('c-notes').textContent = data.notes;
+        }
+
+        window.onload = function() {
+            loadSavedOrEmpty();
+        }
+    </script>
+</body>
+</html>
