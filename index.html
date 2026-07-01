@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BOX.COACH">
+    <meta name="theme-color" content="#0d0d0d">
+    <title>BOX.COACH Infinite Planner</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Barlow:wght@400;500;600;700&display=swap');
+        :root { --black: #0d0d0d; --dark: #141414; --card: #1c1c1e; --accent: #ff3c00; --gold: #ffc200; --text: #f5f5f7; --muted: #8e8e93; --border: #2c2c2e; }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--black); color: var(--text); font-family: 'Barlow', sans-serif; padding: env(safe-area-inset-top, 20px) 16px 40px; max-width: 480px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 14px; padding-top: 10px; }
+        .logo { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 34px; letter-spacing: 3px; text-transform: uppercase; }
+        .logo span { color: var(--accent); }
+        .week-manager { background: var(--dark); border: 1px solid var(--border); padding: 12px; border-radius: 12px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
+        .week-title { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; color: var(--gold); font-weight: 900; text-transform: uppercase; }
+        .nav-btn { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .day-pills { display: flex; gap: 6px; margin-bottom: 14px; }
+        .day-pill { flex: 1; background: var(--card); border: 1px solid var(--border); color: var(--muted); padding: 12px 0; text-align: center; border-radius: 10px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; cursor: pointer; }
+        .day-pill.active { background: var(--accent); color: white; border-color: var(--accent); }
+        .btn-generate-week { width: 100%; background: var(--text); color: var(--black); padding: 16px; border-radius: 12px; font-weight: 900; text-transform: uppercase; margin-bottom: 16px; cursor: pointer; border: none; }
+        .card-session { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 6px 10px; border-radius: 6px; margin-bottom: 8px; border: 1px solid var(--border); }
+        .section-name { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; text-transform: uppercase; font-weight: 700; }
+        .section-content { font-size: 13px; line-height: 1.6; color: #d1d1d6; }
+        .section-content ul { list-style: none; margin-bottom: 10px; }
+        .section-content li { margin-bottom: 4px; padding-left: 12px; position: relative; }
+        .section-content li::before { content: "•"; position: absolute; left: 0; color: var(--accent); }
+    </style>
+</head>
+<body>
+
+    <header><div class="logo">BOX<span>.</span>COACH</div></header>
+
+    <div class="week-manager">
+        <button class="nav-btn" onclick="changeWeek(-1)">◀</button>
+        <div class="week-title" id="display-week-title">Semana 1</div>
+        <button class="nav-btn" onclick="changeWeek(1)">▶</button>
+    </div>
+
+    <div class="day-pills">
+        <div class="day-pill active" id="d0" onclick="selectDay(0)">Lun</div>
+        <div class="day-pill" id="d1" onclick="selectDay(1)">Mar</div>
+        <div class="day-pill" id="d2" onclick="selectDay(2)">Mié</div>
+        <div class="day-pill" id="d3" onclick="selectDay(3)">Jue</div>
+    </div>
+
+    <button class="btn-generate-week" onclick="generateNewFullWeek()">🔄 GENERAR NUEVA SEMANA</button>
+
+    <div class="card-session">
+        <div id="wod-title" style="font-weight:900; font-size:20px; color:var(--accent); margin-bottom:10px;">Selecciona un día</div>
+        
+        <div class="section-header"><span class="section-name">1. Calentamiento</span></div>
+        <div class="section-content" id="c-cal"></div>
+
+        <div class="section-header"><span class="section-name">2. Bloque de Fuerza (Detalle Cargas)</span></div>
+        <div class="section-content" id="c-str"></div>
+
+        <div class="section-header"><span class="section-name">3. WOD Principal (Detalle Estructura)</span></div>
+        <div class="section-content" id="c-wod"></div>
+    </div>
+
+    <script>
+        let currentWeekNumber = 1;
+        let currentDayIndex = 0;
+
+        const ejerciciosFuerza = [
+            { nombre: "Back Squat", series: "5 x 5", descanso: "90s", nota: "Empezar al 70% 1RM, subir carga si la técnica es perfecta." },
+            { nombre: "Press de Banca", series: "4 x 8", descanso: "60s", nota: "Tempo controlado: 2s bajar, 1s pausa, 1s subir." },
+            { nombre: "Peso Muerto", series: "3 x 10", descanso: "120s", nota: "Enfoque en velocidad de subida explosiva." },
+            { nombre: "Push Press", series: "5 x 6", descanso: "90s", nota: "Mantener el core bloqueado, evitar hiper-extensión lumbar." }
+        ];
+
+        function renderDayWOD(diaData, weekNum) {
+            document.getElementById('wod-title').textContent = "SESIÓN: " + ["Lunes", "Martes", "Miércoles", "Jueves"][currentDayIndex];
+            
+            const fuerza = ejerciciosFuerza[Math.floor(Math.random() * ejerciciosFuerza.length)];
+            
+            document.getElementById('c-cal').innerHTML = `<ul><li>9 Minutos: Movilidad articular + 3 rondas de 200m trote suave + 15 air squats.</li></ul>`;
+            
+            document.getElementById('c-str').innerHTML = `
+                <ul>
+                    <li><strong>Ejercicio:</strong> ${fuerza.nombre}</li>
+                    <li><strong>Volumen:</strong> ${fuerza.series} repeticiones.</li>
+                    <li><strong>Descanso:</strong> ${fuerza.descanso} entre series.</li>
+                    <li><strong>Instrucción:</strong> ${fuerza.nota}</li>
+                </ul>
+            `;
+
+            document.getElementById('c-wod').innerHTML = `
+                <ul>
+                    <li><strong>Formato:</strong> ${["AMRAP 20'", "EMOM 20' (4 estaciones)", "CHIPPER (Por tiempo)", "FORTIME (Parejas)"][currentDayIndex]}</li>
+                    <li><strong>Detalle:</strong> Realizar 3 bloques de 15/12 repeticiones de:</li>
+                    <li>• Cardio (Run/Jump/Row)</li>
+                    <li>• Movimiento de fuerza (KB/DB)</li>
+                    <li>• Movimiento de core (Situps/Hollow)</li>
+                    <li><em>Nota Coach:</em> Mantener intensidad al 80% del máximo esfuerzo.</li>
+                </ul>
+            `;
+        }
+
+        function changeWeek(d) { currentWeekNumber = Math.max(1, currentWeekNumber + d); renderDayWOD(); }
+        function selectDay(i) { currentDayIndex = i; document.querySelectorAll('.day-pill').forEach((p, idx) => p.classList.toggle('active', idx === i)); renderDayWOD(); }
+        function generateNewFullWeek() { renderDayWOD(); }
+        window.onload = renderDayWOD;
+    </script>
+</body>
+</html>
