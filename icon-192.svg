@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <rect width="192" height="192" fill="#0d0d0d"/>
+  <rect x="8" y="8" width="176" height="4" fill="#ff3c00"/>
+  <text x="96" y="105" font-family="Arial Black, sans-serif" font-weight="900" font-size="52" fill="#f0ede8" text-anchor="middle" letter-spacing="2">BOX</text>
+  <text x="96" y="138" font-family="Arial, sans-serif" font-weight="700" font-size="18" fill="#ff3c00" text-anchor="middle" letter-spacing="4">COACH</text>
+  <rect x="40" y="148" width="112" height="3" fill="#ff3c00"/>
+</svg>
