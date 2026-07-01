@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BOX.COACH">
+    <meta name="theme-color" content="#0d0d0d">
+    <title>BOX.COACH Infinite Planner</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Barlow:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --black: #0d0d0d;
+            --dark: #141414;
+            --card: #1c1c1e;
+            --accent: #ff3c00;
+            --gold: #ffc200;
+            --text: #f5f5f7;
+            --muted: #8e8e93;
+            --border: #2c2c2e;
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--black);
+            color: var(--text);
+            font-family: 'Barlow', sans-serif;
+            padding: env(safe-area-inset-top, 20px) 16px calc(env(safe-area-inset-bottom, 20px) + 20px);
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 14px;
+            padding-top: 10px;
+        }
+
+        .logo {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 900;
+            font-size: 34px;
+            letter-spacing: 3px;
+            color: var(--text);
+            text-transform: uppercase;
+        }
+
+        .logo span { color: var(--accent); }
+        .subtitle { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); }
+
+        .week-manager {
+            background: var(--dark);
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .week-info {
+            text-align: center;
+            flex: 1;
+        }
+
+        .week-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 18px;
+            color: var(--gold);
+            text-transform: uppercase;
+            font-weight: 900;
+        }
+
+        .week-subtitle {
+            font-size: 11px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+
+        .nav-btn {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .day-pills {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+        .day-pill {
+            flex: 1;
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 12px 0;
+            text-align: center;
+            border-radius: 10px;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        .day-pill.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .btn-generate-week {
+            width: 100%;
+            background: var(--text);
+            color: var(--black);
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 900;
+            font-size: 15px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            cursor: pointer;
+        }
+
+        .wod-container { display: block; animation: fadeIn 0.3s ease-out forwards; }
+        .card-session { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; }
+        .wod-header { margin-bottom: 14px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .wod-title { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 900; text-transform: uppercase; color: var(--accent); }
+        .wod-meta { font-size: 11px; color: var(--text); font-weight: 600; text-transform: uppercase; margin-top: 2px; }
+        
+        .info-row { background: var(--dark); border-radius: 8px; padding: 10px 12px; font-size: 13px; margin-bottom: 14px; border-left: 2px solid var(--gold); }
+        .info-row strong { color: var(--gold); text-transform: uppercase; font-size: 11px; display: block; }
+
+        .section-block { margin-bottom: 12px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 6px 10px; border-radius: 6px; margin-bottom: 6px; border: 1px solid var(--border); }
+        .section-name { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; text-transform: uppercase; font-weight: 700; }
+        .section-time { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; color: var(--accent); font-weight: 700; background: rgba(255, 60, 0, 0.1); padding: 1px 6px; border-radius: 4px; }
+        .section-content { font-size: 13px; line-height: 1.5; color: #d1d1d6; }
+        .section-content ul { list-style: none; }
+        .section-content li { margin-bottom: 4px; position: relative; padding-left: 12px; }
+        .section-content li::before { content: "•"; position: absolute; left: 0; color: var(--accent); }
+
+        .coach-card { background: rgba(255, 194, 0, 0.04); border: 1px dashed rgba(255, 194, 0, 0.25); border-radius: 12px; padding: 12px; margin-top: 14px; font-size: 12.5px; color: #e5e5ea; }
+        .coach-card title { display: block; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; color: var(--gold); text-transform: uppercase; font-weight: 700; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">BOX<span>.</span>COACH</div>
+        <div class="subtitle">Programación de Alta Calidad y Variedad Diaria</div>
+    </header>
+
+    <div class="week-manager">
+        <button class="nav-btn" onclick="changeWeek(-1)">◀</button>
+        <div class="week-info">
+            <div class="week-title" id="display-week-title">Semana 1</div>
+            <div class="week-subtitle" id="display-week-style">Iniciando Pizarra...</div>
+        </div>
+        <button class="nav-btn" onclick="changeWeek(1)">▶</button>
+    </div>
+
+    <div class="day-pills">
+        <div class="day-pill active" id="d0" onclick="selectDay(0)">Lun</div>
+        <div class="day-pill" id="d1" onclick="selectDay(1)">Mar</div>
+        <div class="day-pill" id="d2" onclick="selectDay(2)">Mié</div>
+        <div class="day-pill" id="d3" onclick="selectDay(3)">Jue</div>
+    </div>
+
+    <button class="btn-generate-week" onclick="generateNewFullWeek()">
+        🔄 Crear Siguiente Semana Completa
+    </button>
+
+    <div class="wod-container" id="wod-card">
+        <div class="card-session">
+            <div class="wod-header">
+                <div class="wod-title" id="wod-title">Pizarra Activa</div>
+                <div class="wod-meta" id="wod-meta">Preparando sesión...</div>
+            </div>
+
+            <div class="info-row">
+                <strong>Formato y Estímulo Fisiológico:</strong>
+                <span id="wod-estimulo">—</span>
+            </div>
+
+            <div class="section-block">
+                <div class="section-header">
+                    <span class="section-name">1. Calentamiento de Calidad y Gamificado</span>
+                    <span class="section-time">9 MINUTOS</span>
+                </div>
+                <div class="section-content" id="c-cal"></div>
+            </div>
+
+            <div class="section-block">
+                <div class="section-header">
+                    <span class="section-name">2. Bloque Técnico / Fuerza Máxima</span>
+                    <span class="section-time">16 MINUTOS</span>
+                </div>
+                <div class="section-content" id="c-str"></div>
+            </div>
+
+            <div class="section-block">
+                <div class="section-header">
+                    <span class="section-name">3. WOD Principal Estructurado</span>
+                    <span class="section-time">20 MINUTOS</span>
+                </div>
+                <div class="section-content" id="c-wod"></div>
+            </div>
+
+            <div class="section-block">
+                <div class="section-header">
+                    <span class="section-name">4. Cooldown / Regeneración Articular</span>
+                    <span class="section-time">5 MINUTOS</span>
+                </div>
+                <div class="section-content" id="c-clm"></div>
+            </div>
+
+            <div class="coach-card">
+                <title>Estrategia Logística (14 Atletas - 3 Cajones / 3 Balones)</title>
+                <p id="c-notes">—</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentWeekNumber = 1;
+        let currentDayIndex = 0;
+
+        const macrocicloMuscular = [
+            {
+                nombre: "Ciclo Alfa: Balance Antagonista Completo",
+                dias: [
+                    { tipoWOD: "AMRAP (Volumen por Tiempo)", muscular: "Tren Superior (Empuje Horizontal + Tracción)", foco: "Pectoral, Dorsal, Bíceps y Tríceps Estricto", calentamiento: "El Reloj Técnico de Flexiones", calDesc: "Por parejas, un atleta mantiene plancha isométrica mientras el otro hace 10 remos invertidos en TRX, luego cambian." },
+                    { tipoWOD: "EMOM Logístico de Fuerza", muscular: "Tren Inferior (Cuádriceps prioritario)", foco: "Fuerza de Sentadilla Frontal y Potencia de Piernas", calentamiento: "Relevos de Zancadas con Carga", calDesc: "Carrera corta exterior ida y vuelta haciendo zancadas dinámicas con un balón medicinal ligero." },
+                    { tipoWOD: "CHIPPER de Resistencia", muscular: "Cadena Posterior + Core Dinámico", foco: "Isquiotibiales, Glúteos, Lumbar y Recto Abdominal", calentamiento: "Reto del Isométrico Colectivo", calDesc: "La mitad de la clase aguanta en Hollow Hold mientras la otra mitad realiza 15 Kettlebell Swings ligeros." },
+                    { tipoWOD: "FORTIME de Alta Potencia", muscular: "Vectores Axiales Verticales (Full Body)", foco: "Hombros, Trapecio, Gemelos y Transferencia Olímpica", calentamiento: "Juego de Relevos de Carrera Exterior", calDesc: "Sprints de 100m en parejas chocando la mano al relevar para activar el sistema nervioso central." }
+                ]
+            },
+            {
+                nombre: "Ciclo Beta: Enfoque de Cadenas Cinéticas",
+                dias: [
+                    { tipoWOD: "AMRAP (Volumen por Tiempo)", muscular: "Cadena Anterior (Empujes Verticales)", foco: "Hombro, Tríceps, Core Frontal y Estabilizadores", calentamiento: "Pasos de Oso Dinámicos", calDesc: "Recorrer el box en cuadrupedia baja manteniendo tensión constante en core y hombros al pitido del coach." },
+                    { tipoWOD: "EMOM Logístico de Fuerza", muscular: "Cadena Posterior Bisagra (Tracción)", foco: "Dorsal Ancho, Peso Muerto y Flexores de Cadera", calentamiento: "El Puente Humano", calDesc: "Sostener la posición de puente de glúteos de forma estática mientras el compañero salta de forma lateral." },
+                    { tipoWOD: "CHIPPER de Resistencia", muscular: "Tren Inferior Explosivo (Isquiotibiales/Glúteo)", foco: "Potencia de Cadera, Saltos y Fuerza Unilateral", calentamiento: "Sentadilla Cooperativa", calDesc: "Frente a frente por parejas agarrados de las manos, ejecutar sentadillas sincronizadas con cambios de ritmo." },
+                    { tipoWOD: "FORTIME de Alta Potencia", muscular: "Complejos Metabólicos Cruzados", foco: "Estímulo Sistémico Integral, Brazos y Piernas coordinados", calentamiento: "Comba Explosiva en Grupo", calDesc: "Saltos dobles o simples continuos, acumulando 10 burpees grupales cada vez que alguien falle el ritmo." }
+                ]
+            }
+        ];
+
+        const bancoEjercicios = {
+            fuerza: ["Complejo Front Squat + Push Jerk", "Peso Muerto Convencional Controlado", "Back Squat desde el Suelo", "Press de Banca con Mancuernas", "Remo Inclinado con Barra Pesada", "Thrusters unbroken en parejas", "Dominadas Estrictas + Hollow Hold", "Power Clean desde Colgante"],
+            cardio: ["400m Carrera Exterior", "60 Saltos dobles de comba", "200m Sprint a máxima velocidad", "45s Cuerda de Batalla explosiva", "20 saltos al cajón controlados"],
+            core: ["15 Kettlebell Swings Americanos", "15 Elevaciones de Rodillas al Pecho", "16 Zancadas con Carga Goblet", "20 Kettlebell Sumo Deadlifts", "15 Abdominales Sit-ups con balón"],
+            accessory: ["12 Burpees saltando el cajón", "12 Lanzamientos de Balón Medicinal", "15 Flexiones de brazos estrictas", "12 Remos invertidos en TRX", "12 Arrancadas con mancuerna (Snatch)"]
+        };
+
+        function changeWeek(direction) {
+            if (currentWeekNumber + direction < 1) return;
+            currentWeekNumber += direction;
+            loadCurrentSelection();
+        }
+
+        function selectDay(dayIdx) {
+            currentDayIndex = dayIdx;
+            document.querySelectorAll('.day-pill').forEach((p, idx) => p.classList.toggle('active', idx === dayIdx));
+            loadCurrentSelection();
+        }
+
+        function getStorageKey(num) {
+            return `boxcoach_infinite_week_${num}`;
+        }
+
+        function loadCurrentSelection() {
+            document.getElementById('display-week-title').textContent = `Semana ${currentWeekNumber}`;
+            const key = getStorageKey(currentWeekNumber);
+            const savedWeek = localStorage.getItem(key);
+
+            try {
+                if (savedWeek) {
+                    const weekData = JSON.parse(savedWeek);
+                    if (!weekData.dias || !weekData.dias[currentDayIndex]) throw new Error("Datos corruptos");
+                    document.getElementById('display-week-style').textContent = weekData.estiloNombre;
+                    renderDayWOD(weekData.dias[currentDayIndex]);
+                } else {
+                    generateWeekStructure(currentWeekNumber);
+                }
+            } catch (e) {
+                localStorage.removeItem(key);
+                generateWeekStructure(currentWeekNumber);
+            }
+        }
+
+        function generateNewFullWeek() {
+            let maxWeek = 0;
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith("boxcoach_infinite_week_")) {
+                    const num = parseInt(key.replace("boxcoach_infinite_week_", ""), 10);
+                    if (!isNaN(num) && num > maxWeek) maxWeek = num;
+                }
+            }
+            currentWeekNumber = maxWeek + 1;
+            generateWeekStructure(currentWeekNumber);
+        }
+
+        function generateWeekStructure(weekNum) {
+            const plantillaIdx = (weekNum - 1) % macrocicloMuscular.length;
+            const plantilla = macrocicloMuscular[plantillaIdx];
+
+            const nuevaSemana = {
+                semanaIndex: weekNum,
+                estiloNombre: plantilla.nombre,
+                dias: []
+            };
+
+            for (let i = 0; i < 4; i++) {
+                const configDia = plantilla.dias[i];
+                
+                const fuerza = bancoEjercicios.fuerza[Math.floor(Math.random() * bancoEjercicios.fuerza.length)];
+                const cardio = bancoEjercicios.cardio[Math.floor(Math.random() * bancoEjercicios.cardio.length)];
+                const core = bancoEjercicios.core[Math.floor(Math.random() * bancoEjercicios.core.length)];
+                const acc = bancoEjercicios.accessory[Math.floor(Math.random() * bancoEjercicios.accessory.length)];
+
+                nuevaSemana.dias.push({
+                    diaNombre: ["Lunes", "Martes", "Miércoles", "Jueves"][i],
+                    tipoWOD: configDia.tipoWOD,
+                    muscular: configDia.muscular,
+                    foco: configDia.foco,
+                    calNombre: configDia.calentamiento,
+                    calDetalle: configDia.calDesc,
+                    fuerza: fuerza,
+                    cardio: cardio,
+                    core: core,
+                    accesorio: acc
+                });
+            }
+
+            localStorage.setItem(getStorageKey(weekNum), JSON.stringify(nuevaSemana));
+            
+            document.getElementById('display-week-title').textContent = `Semana ${weekNum}`;
+            document.getElementById('display-week-style').textContent = plantilla.nombre;
+            renderDayWOD(nuevaSemana.dias[currentDayIndex]);
+        }
+
+        function renderDayWOD(diaData) {
+            if (!diaData) return;
+            document.getElementById('wod-title').textContent = `${diaData.tipoWOD}`;
+            document.getElementById('wod-meta').textContent = `${diaData.diaNombre} — GRUPO: ${diaData.muscular}`;
+            
+            document.getElementById('wod-estimulo').innerHTML = `
+                <span style="color:var(--gold); font-weight:bold; text-transform:uppercase;">🎯 OBJETIVO: ${diaData.foco}</span><br>
+                <small style="color:var(--text); opacity:0.8;">Estructura diaria planificada para evitar fatiga acumulada.</small>
+            `;
+
+            document.getElementById('c-cal').innerHTML = `
+                <ul>
+                    <li><strong>Dinámica Cooperativa: "${diaData.calNombre}"</strong></li>
+                    <li><em>Ejecución:</em> ${diaData.calDetalle}</li>
+                    <li>Completar con 4 minutos de estiramiento balístico y movilidad específica de hombros, cadera y tobillos.</li>
+                </ul>
+            `;
+
+            document.getElementById('c-str').innerHTML = `
+                <ul>
+                    <li><strong>Fuerza y Reclutamiento de Fibras:</strong></li>
+                    <li>Ejecutar 4 series pesadas de: <strong>${diaData.fuerza}</strong>.</li>
+                    <li><em>Patrón técnico:</em> Descansar 90 segundos entre series. Apuntar a un RPE 8.5/10.</li>
+                    <li><em>Logística:</em> Compartir barras obligatoriamente en parejas (máximo 7 barras cargadas simultáneamente).</li>
+                </ul>
+            `;
+
+            document.getElementById('c-wod').innerHTML = `
+                <ul>
+                    <li><strong>Metcon adaptado al formato "${diaData.tipoWOD}":</strong></li>
+                    <li>• Movimiento Cardiovascular Principal: <strong>${diaData.cardio}</strong></li>
+                    <li>• Estabilidad Funcional del Núcleo: <strong>${diaData.core}</strong></li>
+                    <li>• Ejercicio de Transferencia Potente: <strong>${diaData.accesorio}</strong></li>
+                    <li><br><em>Instrucciones del Coach:</em> Estructurar las transiciones y repeticiones bajo la norma del formato asignado para hoy de manera estricta.</li>
+                </ul>
+            `;
+
+            document.getElementById('c-clm').innerHTML = `
+                <ul>
+                    <li>5 Minutos de rodillo de espuma (Foam Roller) si está disponible o estiramientos estáticos de la cadena muscular activada hoy.</li>
+                </ul>
+            `;
+
+            let logisticaTexto = "";
+            if (diaData.tipoWOD.includes("EMOM")) {
+                logisticaTexto = "Perfecto para el material escaso. Divide la clase en 3 estaciones: Minuto 1 Cardio, Minuto 2 Core, Minuto 3 Accesorio. Los 14 atletas rotan de forma fluida sin tocar nunca los mismos 3 cajones o balones a la vez.";
+            } else if (diaData.tipoWOD.includes("CHIPPER")) {
+                logisticaTexto = "Como el Chipper es en línea recta, escalona la salida de los atletas cada 90 segundos. Así, cuando el Atleta 1 deje el cajón, el Atleta 3 entrará a usarlo. Cero atascos.";
+            } else {
+                logisticaTexto = "Divide la clase de 14 alumnos estrictamente en dos grupos de 7. El Grupo A comienza el Metcon por el elemento cardiovascular, mientras el Grupo B arranca por el elemento accesorio. Rotación cruzada limpia.";
+            }
+            document.getElementById('c-notes').textContent = logisticaTexto;
+        }
+
+        window.onload = function() {
+            loadCurrentSelection();
+        }
+    </script>
+</body>
+</html>
